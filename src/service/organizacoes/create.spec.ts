@@ -1,14 +1,20 @@
 import { InMemoryOrganizacoesRepository } from "@/repositories/in-memory/in-memory-organizacoes-respository";
 import { compare } from "bcryptjs";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { OrganizacaoEmailJaCadastradoError } from "../errors/organizacao-email-ja-cadastrado";
 import { OrganizacoesCreateService } from "./create";
 
-describe("Create Service", () => {
-  it("Deve ser capaz de registrar uma organização", async () => {
-    const organizacoesRepository = new InMemoryOrganizacoesRepository();
-    const sut = new OrganizacoesCreateService(organizacoesRepository);
+let organizacoesRepository: InMemoryOrganizacoesRepository;
+let sut: OrganizacoesCreateService;
 
+describe("Create Service", () => {
+  beforeEach(() => {
+    organizacoesRepository = new InMemoryOrganizacoesRepository();
+    sut = new OrganizacoesCreateService(organizacoesRepository);
+
+  })
+
+  it("Deve ser capaz de registrar uma organização", async () => {
     const { organizacao } = await sut.execute({
       nomeResponsavel: "Nome do Responsavel",
       email: "emaildaorganizaca@mail.com",
@@ -26,10 +32,6 @@ describe("Create Service", () => {
   });
 
   it("deve ser capaz de criar um hash da senha da organização", async () => {
-
-    const organizacoesRepository = new InMemoryOrganizacoesRepository();
-    const sut = new OrganizacoesCreateService(organizacoesRepository);
-
     const { organizacao } = await sut.execute({
       nomeResponsavel: "Nome do Responsavel",
       email: "emaildaorganizaca@mail.com",
@@ -54,8 +56,7 @@ describe("Create Service", () => {
 
   it("Não deve ser capaz de registrar uma e-mail duas vezes", async () => {
     const email = "jose_w@exemple.com";
-    const organizacoesRepository = new InMemoryOrganizacoesRepository();
-    const sut = new OrganizacoesCreateService(organizacoesRepository);
+
     await sut.execute({
       nomeResponsavel: "Nome do Responsavel",
       email,

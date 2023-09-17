@@ -1,6 +1,5 @@
-import { PrismaOrganizacoesRepository } from "@/repositories/prisma/prisma-organizacoes-repository";
 import { OrganizacaoEmailJaCadastradoError } from "@/service/errors/organizacao-email-ja-cadastrado";
-import { OrganizacoesCreateService } from "@/service/organizacoes/create";
+import { criaOrganizacoesCreateService } from "@/service/factories/cria-organizacoes-create.service";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 
@@ -32,8 +31,7 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   } = registerBodySchema.parse(request.body);
 
   try {
-    const organizacoesRepository = new PrismaOrganizacoesRepository()
-    const organizacoesService = new OrganizacoesCreateService(organizacoesRepository)
+    const organizacoesService = criaOrganizacoesCreateService();
 
     await organizacoesService.execute({
       nomeResponsavel,

@@ -30,7 +30,7 @@ export class InMemoryOrganizacoesRepository implements OrganizacoesRepository {
       created_at: new Date(),
     };
 
-    this.items.push(organizacao);
+    this.items.push(organizacao as Organizacao);
 
     return organizacao;
   }
