@@ -1,5 +1,6 @@
-import { prisma } from "@/lib/prisma";
-import { hash } from "bcryptjs";
+import { PrismaOrganizacoesRepository } from "@/repositories/prisma/prisma-organizacoes-repository";
+import { OrganizacaoEmailJaCadastradoError } from "@/service/errors/organizacao-email-ja-cadastrado";
+import { OrganizacoesCreateService } from "@/service/organizacoes/create";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 
@@ -30,20 +31,11 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
     password,
   } = registerBodySchema.parse(request.body);
 
-  const password_hash = await hash(password, 6);
+  try {
+    const organizacoesRepository = new PrismaOrganizacoesRepository()
+    const organizacoesService = new OrganizacoesCreateService(organizacoesRepository)
 
-  const userWithSameEmail = await prisma.organizacao.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (userWithSameEmail) {
-    return reply.status(409).send();
-  }
-
-  await prisma.organizacao.create({
-    data: {
+    await organizacoesService.execute({
       nomeResponsavel,
       email,
       estado,
@@ -53,9 +45,15 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
       cep,
       endereco,
       whatsapp,
-      password_hash,
+      password,
+    })
+  } catch (error) {
+    if (error instanceof OrganizacaoEmailJaCadastradoError) {
+      return reply.status(409).send(error);
     }
-  })
+
+    throw error;
+  }
 
   return reply.status(201).send();
 }
