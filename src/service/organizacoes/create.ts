@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { Organizacao } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { OrganizacaoEmailJaCadastradoError } from "../errors/organizacao-email-ja-cadastrado";
 
@@ -13,6 +13,10 @@ interface CreateServiceRequest {
   endereco: string,
   whatsapp: string,
   password: string,
+}
+
+interface CreateServiceResponse {
+  organizacao: Organizacao;
 }
 
 export class OrganizacoesCreateService {
@@ -30,20 +34,16 @@ export class OrganizacoesCreateService {
     endereco,
     whatsapp,
     password,
-  }: CreateServiceRequest) {
+  }: CreateServiceRequest): Promise<CreateServiceResponse> {
     const password_hash = await hash(password, 6);
 
-    const userWithSameEmail = await prisma.organizacao.findUnique({
-      where: {
-        email,
-      },
-    });
+    const organizacaoWithSameEmail = await this.organizacoesRepository.findByEmail(email)
 
-    if (userWithSameEmail) {
+    if (organizacaoWithSameEmail) {
       throw new OrganizacaoEmailJaCadastradoError();
     }
 
-    this.organizacoesRepository.create({
+    const organizacao = await this.organizacoesRepository.create({
       nomeResponsavel,
       email,
       estado,
@@ -55,5 +55,7 @@ export class OrganizacoesCreateService {
       whatsapp,
       password_hash,
     })
+
+    return { organizacao }
   }
 }
