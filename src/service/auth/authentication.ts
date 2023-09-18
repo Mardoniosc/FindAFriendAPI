@@ -20,12 +20,11 @@ export class AuthenticateService {
     password,
   }: AuthenticateServiceRequest): Promise<AuthenticateServiceResponse> {
     const org = await this.orgsRepository.findByEmail(email);
-    console.log("Email login => ", org?.email);
+
     if (!org) {
       throw new CredenciaisInvalidasError();
     }
-    console.log("Credenciais", password);
-    console.log("Credenciais", org.password);
+
     const doesPasswordMatches = await compare(password, org.password);
 
     if (!doesPasswordMatches) {

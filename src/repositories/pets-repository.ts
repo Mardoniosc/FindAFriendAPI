@@ -1,3 +1,4 @@
+import { QueryParamsProps } from "@/service/pets/models/pets.mode";
 import { Pet, Prisma } from "@prisma/client";
 
 export interface PetsRepository {
@@ -5,5 +6,5 @@ export interface PetsRepository {
 
   create(data: Prisma.PetCreateInput): Promise<Pet>;
 
-  findManyByCity(city: string): Promise<Pet[]>;
+  findManyByCity(city: string, query: QueryParamsProps | null): Promise<Pet[]>;
 }

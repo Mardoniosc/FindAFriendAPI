@@ -28,8 +28,6 @@ describe("Authenticate Service", () => {
       password: "123123",
     });
 
-    console.log("Organização => ", org);
-
     expect(org.id).toEqual(expect.any(String));
   });
 

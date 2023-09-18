@@ -5,11 +5,25 @@ import { PetsRepository } from "../pets-repository";
 export class InMemoryPetsRepository implements PetsRepository {
   public items: Pet[] = [];
 
-  async findManyByCity(city: string) {
-    const pets = this.items.filter((item) => item.city.includes(city));
+  async findManyByCity(city: string, query: any) {
+    let pets = this.items.filter((item) => item.city.includes(city));
+
+    if (query) {
+      pets = this.items.filter((objeto: any) => {
+        for (const key in query) {
+          if (query.hasOwnProperty(key)) {
+            if (objeto[key] !== query[key]) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
+    }
 
     return pets;
   }
+
   async findById(id: string) {
     const pet = this.items.find((item) => item.id === id);
 
@@ -30,7 +44,7 @@ export class InMemoryPetsRepository implements PetsRepository {
       independence: data.independence,
       type: data.type,
       photo: data.photo,
-      orgId: data.org.connect?.id ?? randomUUID(),
+      orgId: data.org.connect?.id ?? "",
     };
 
     this.items.push(pet);
