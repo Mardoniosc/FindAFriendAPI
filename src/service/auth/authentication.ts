@@ -1,4 +1,4 @@
-import { OrgsRepository } from "@/repositories/orgs-repository";
+import { OrgRepository } from "@/repositories/orgs-repository";
 import { Org } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { CredenciaisInvalidasError } from "../errors/credenciais-invalidas";
@@ -13,19 +13,20 @@ interface AuthenticateServiceResponse {
 }
 
 export class AuthenticateService {
-  constructor(private orgsRepository: OrgsRepository) {}
+  constructor(private orgsRepository: OrgRepository) {}
 
   async execute({
     email,
     password,
   }: AuthenticateServiceRequest): Promise<AuthenticateServiceResponse> {
     const org = await this.orgsRepository.findByEmail(email);
-
+    console.log("Email login => ", org?.email);
     if (!org) {
       throw new CredenciaisInvalidasError();
     }
-
-    const doesPasswordMatches = await compare(password, org.password_hash);
+    console.log("Credenciais", password);
+    console.log("Credenciais", org.password);
+    const doesPasswordMatches = await compare(password, org.password);
 
     if (!doesPasswordMatches) {
       throw new CredenciaisInvalidasError();

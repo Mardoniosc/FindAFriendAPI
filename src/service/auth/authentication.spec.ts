@@ -1,37 +1,34 @@
-import { InMemoryOrgsRepository } from "@/repositories/in-memory/in-memory-orgs-respository";
-import { OrgsRepository } from "@/repositories/orgs-repository";
+import { InMemoryorgRepository } from "@/repositories/in-memory/in-memory-org-respository";
 import { hash } from "bcryptjs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CredenciaisInvalidasError } from "../errors/credenciais-invalidas";
 import { AuthenticateService } from "./authentication";
 
-let orgsRepository: InMemoryOrgsRepository;
+let orgsRepository: InMemoryorgRepository;
 let sut: AuthenticateService;
 
 describe("Authenticate Service", () => {
   beforeEach(() => {
-    orgsRepository = new InMemoryOrgsRepository();
-    sut = new AuthenticateService(orgsRepository as OrgsRepository);
+    orgsRepository = new InMemoryorgRepository();
+    sut = new AuthenticateService(orgsRepository);
   });
 
   it("Deve ser capaz de se autenticar.", async () => {
     await orgsRepository.create({
-      nomeResponsavel: "Nome do Responsavel",
-      email: "email@gmail.com",
-      cidade: "Cidade",
-      estado: "DF",
-      latitude: 0,
-      longitude: 0,
-      cep: "78008120",
-      endereco: "Endereco completo aqui",
-      whatsapp: "5561984137835",
-      password_hash: await hash("123123", 6),
+      name: "Nome do Responsavel",
+      address: "Rua coronel escolares, 746",
+      cep: "78000-002",
+      email: "emaildaorganizaca@mail.com",
+      password: await hash("123123", 6),
+      whatsappNumber: "65984575252",
     });
 
     const { org } = await sut.execute({
-      email: "email@gmail.com",
+      email: "emaildaorganizaca@mail.com",
       password: "123123",
     });
+
+    console.log("Organização => ", org);
 
     expect(org.id).toEqual(expect.any(String));
   });
@@ -47,21 +44,17 @@ describe("Authenticate Service", () => {
 
   it("Não deve ser capaz de autenticar com senha errada.", async () => {
     await orgsRepository.create({
-      nomeResponsavel: "Nome do Responsavel",
-      email: "email@gmail.com",
-      cidade: "Cidade",
-      estado: "DF",
-      latitude: 0,
-      longitude: 0,
-      cep: "78008120",
-      endereco: "Endereco completo aqui",
-      whatsapp: "5561984137835",
-      password_hash: await hash("123123", 6),
+      name: "Nome do Responsavel",
+      address: "Rua coronel escolares, 746",
+      cep: "78000-002",
+      email: "emaildaorganizaca@mail.com",
+      whatsappNumber: "65984575252",
+      password: await hash("123123", 6),
     });
 
     await expect(() =>
       sut.execute({
-        email: "email@gmail.com",
+        email: "emaildaorganizaca@mail.com",
         password: "123456",
       })
     ).rejects.toBeInstanceOf(CredenciaisInvalidasError);

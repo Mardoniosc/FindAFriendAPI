@@ -1,53 +1,62 @@
+import { OrgRepository } from "@/repositories/orgs-repository";
 import { PetsRepository } from "@/repositories/pets-repository";
-import { Org, Pet } from "@prisma/client";
+import { AdoptionRequirements, Org, Pet, PetGallery } from "@prisma/client";
 import { OrgObrigatoriaError } from "../errors/org-obrigatoria";
 
 interface CreateServiceRequest {
-  nome: string;
-  sobre: string;
-  idade: string;
-  porte: string;
-  nivelDeEnergia: string;
-  nivelDeIndependencia: string;
-  ambiente: string;
-  fotos: string[];
-  requisitoDoacao: string;
-  org: Org;
+  name: string;
+  description: string;
+  city: string;
+  age: string;
+  energy: number;
+  size: string;
+  independence: string;
+  type: string;
+  photo: string;
+  orgId: string;
+  org?: Org;
+  pets?: PetGallery;
+  adoptionRequirements?: AdoptionRequirements;
 }
 
 interface CreateServiceResponse {
   pet: Pet;
 }
 
-export class CreateService {
-  constructor(private petsRepository: PetsRepository) {}
+export class CreatePetsService {
+  constructor(
+    private petsRepository: PetsRepository,
+    private orgsRepository: OrgRepository
+  ) {}
 
   async execute({
-    nome,
-    sobre,
-    idade,
-    porte,
-    nivelDeEnergia,
-    nivelDeIndependencia,
-    ambiente,
-    fotos,
-    requisitoDoacao,
-    org,
+    name,
+    description,
+    city,
+    age,
+    energy,
+    size,
+    independence,
+    type,
+    photo,
+    orgId,
   }: CreateServiceRequest): Promise<CreateServiceResponse> {
+    const org = await this.orgsRepository.findById(orgId);
+
     if (!org) {
       throw new OrgObrigatoriaError();
     }
 
     const pet = await this.petsRepository.create({
-      nome,
-      sobre,
-      idade,
-      porte,
-      nivelDeEnergia,
-      nivelDeIndependencia,
-      ambiente,
-      fotos,
-      requisitoDoacao,
+      name,
+      description,
+      city,
+      age,
+      energy,
+      size,
+      independence,
+      type,
+      photo,
       org,
     });
 
