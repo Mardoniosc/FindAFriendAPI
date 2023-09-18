@@ -5,6 +5,11 @@ import { PetsRepository } from "../pets-repository";
 export class InMemoryPetsRepository implements PetsRepository {
   public items: Pet[] = [];
 
+  async findManyByCity(city: string) {
+    const pets = this.items.filter((item) => item.city.includes(city));
+
+    return pets;
+  }
   async findById(id: string) {
     const pet = this.items.find((item) => item.id === id);
 
