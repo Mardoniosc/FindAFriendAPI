@@ -1,21 +1,21 @@
-import { InMemoryOrganizacoesRepository } from "@/repositories/in-memory/in-memory-organizacoes-respository";
-import { OrganizacoesRepository } from "@/repositories/organizacoes-repository";
+import { InMemoryOrgsRepository } from "@/repositories/in-memory/in-memory-orgs-respository";
+import { OrgsRepository } from "@/repositories/orgs-repository";
 import { hash } from "bcryptjs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CredenciaisInvalidasError } from "../errors/credenciais-invalidas";
 import { AuthenticateService } from "./authentication";
 
-let organizacoesRepository: InMemoryOrganizacoesRepository;
+let orgsRepository: InMemoryOrgsRepository;
 let sut: AuthenticateService;
 
 describe("Authenticate Service", () => {
   beforeEach(() => {
-    organizacoesRepository = new InMemoryOrganizacoesRepository();
-    sut = new AuthenticateService(organizacoesRepository as OrganizacoesRepository);
-  })
+    orgsRepository = new InMemoryOrgsRepository();
+    sut = new AuthenticateService(orgsRepository as OrgsRepository);
+  });
 
   it("Deve ser capaz de se autenticar.", async () => {
-    await organizacoesRepository.create({
+    await orgsRepository.create({
       nomeResponsavel: "Nome do Responsavel",
       email: "email@gmail.com",
       cidade: "Cidade",
@@ -28,12 +28,12 @@ describe("Authenticate Service", () => {
       password_hash: await hash("123123", 6),
     });
 
-    const { organizacao } = await sut.execute({
+    const { org } = await sut.execute({
       email: "email@gmail.com",
       password: "123123",
     });
 
-    expect(organizacao.id).toEqual(expect.any(String));
+    expect(org.id).toEqual(expect.any(String));
   });
 
   it("Não deve ser capaz de se autenticar com e-mail errado.", async () => {
@@ -46,7 +46,7 @@ describe("Authenticate Service", () => {
   });
 
   it("Não deve ser capaz de autenticar com senha errada.", async () => {
-    await organizacoesRepository.create({
+    await orgsRepository.create({
       nomeResponsavel: "Nome do Responsavel",
       email: "email@gmail.com",
       cidade: "Cidade",
